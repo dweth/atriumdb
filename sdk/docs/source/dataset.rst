@@ -13,6 +13,9 @@ of data.
 For this reason, AtriumDB has a `AtriumSDK.get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_ method, that
 preloads large amounts of data in your RAM, and feeds it to you piece by piece in an iterable Class.
 
+`AtriumSDK.get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_ also does the job of windowing and indexing
+your data for you, which makes tasks like training a model much simpler.
+
 What is the ``get_iterator`` method?
 ###################################################
 
