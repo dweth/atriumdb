@@ -223,11 +223,12 @@ The ``measures`` section lists various measures to be considered. Each measure c
 2. A complete measure triplet which includes:
 
    - ``tag``: The tag identifying the measure.
-   - ``freq_hz`` or ``freq_nhz``: The frequency of the measure (in Hertz or nanoHertz).
+   - ``freq_hz`` or ``freq_nhz``: The frequency of the measure in Hertz (floating) or nanoHertz (integer).
    - ``units``: The unit of the measure (e.g., volts, bpm).
 
 .. code-block:: yaml
 
+   # could be mrns, device_ids or device_tags
    patient_ids:
         12345:
             - start: 1682739200000000000  # nanosecond Unix Epoch Time
@@ -240,10 +241,13 @@ The ``measures`` section lists various measures to be considered. Each measure c
             - start: 1682739200000000000  # Start with no end
 
    measures:
-     - heart_rate
-     - tag: ECG
-       freq_hz: 300
-       units: mV
+        - heart_rate
+        - tag: ECG
+          freq_hz: 62.5
+          units: mV
+        - tag: ABP
+          freq_nhz: 250000000000
+          units: mV
 
 
 Definition YAML Examples
