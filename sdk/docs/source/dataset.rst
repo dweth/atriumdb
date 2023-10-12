@@ -64,6 +64,8 @@ How to Use
 
    definition = DatasetDefinition(measures=measures, device_ids=device_ids)
 
+You can also use mrns or device tags to device your sources.
+
 3. Set your desired parameters: window size and slide size (durations in nanoseconds), also num_windows_prefetch is the number of windows to preload for optimization:
 
 .. code-block:: python
