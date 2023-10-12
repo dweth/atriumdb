@@ -72,7 +72,9 @@ How to Use
 You can also use mrns or device tags to device your sources. See the
 `DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ for more options.
 
-3. Set your desired parameters: window size and slide size (durations in nanoseconds), also num_windows_prefetch is the number of windows to preload for optimization:
+3. Set your desired parameters: window size and slide size (default durations in nanoseconds, changeable using
+``time_units`` param, output times with conform to ``time_units`` units), also num_windows_prefetch is the number of
+windows to preload for optimization:
 
 .. code-block:: python
 
