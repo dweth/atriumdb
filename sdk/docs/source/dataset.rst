@@ -123,6 +123,10 @@ possible section of no data to be emitted by the windows.
         # Total Data Matrix, useful for feeding a model.
         print(iterator.get_array_matrix(window_i))
 
+You can find explanations of the returned Window object in the :ref:`window_format` section below.
+
+.. _window_format:
+
 Window Format
 #####################
 
