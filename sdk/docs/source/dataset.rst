@@ -72,7 +72,7 @@ How to Use
 You can also use mrns or device tags to device your sources. See the
 `DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ for more options.
 
-3. Set your desired parameters: ``window_duration`` and ``window_slide`` (durations in nanoseconds by default,
+3. Set your desired parameters: **window_duration** and **window_slide** (durations in nanoseconds by default,
 changeable using ``time_units`` param, output times with conform to ``time_units`` units):
 
 .. code-block:: python
