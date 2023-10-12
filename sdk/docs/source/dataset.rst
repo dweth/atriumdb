@@ -223,7 +223,7 @@ The ``measures`` section lists various measures to be considered. Each measure c
 2. A complete measure triplet which includes:
 
    - ``tag``: The tag identifying the measure.
-   - ``freq_hz``: The frequency of the measure (in Hertz).
+   - ``freq_hz`` or ``freq_nhz``: The frequency of the measure (in Hertz or nanoHertz).
    - ``units``: The unit of the measure (e.g., volts, bpm).
 
 .. code-block:: yaml
