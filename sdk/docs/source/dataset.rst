@@ -300,6 +300,8 @@ Adding to a DatasetDefinition object
       sdk.insert_measure(measure_tag="ART_BLD_PRESS", freq=250, units="mmHG", freq_units="Hz")
       dataset_definition.add_measure(tag="ART_BLD_PRESS")  # ValueError: More than 1 measure has that tag
       >>> ValueError
+      dataset_definition = DatasetDefinition()
+      dataset_definition.add_measure(measure_tag="ART_BLD_PRESS", freq=62.5, units="mmHG")  # Okay
       dataset_definition.add_measure(measure_tag="ART_BLD_PRESS", freq=250, units="mmHG")  # Okay
 
 2. Adding a region:
