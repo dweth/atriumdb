@@ -324,4 +324,6 @@ Once you have defined all the measures and regions, you can save the definition 
 
    dataset_definition.save(filepath="path/to/saved/definition.yaml")
 
-Note that the file extension must be ``.yaml``.
+Note that the file extension must be ``.yaml`` or ``.yml``.
+
+If you would like to overwrite an existing file, include the ``force=True`` keyword parameter.
