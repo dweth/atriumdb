@@ -299,6 +299,7 @@ Adding to a DatasetDefinition object
 
       sdk.insert_measure(measure_tag="ART_BLD_PRESS", freq=250, units="mmHG", freq_units="Hz")
       dataset_definition.add_measure(tag="ART_BLD_PRESS")  # ValueError: More than 1 measure has that tag
+      >>> ValueError
       dataset_definition.add_measure(measure_tag="ART_BLD_PRESS", freq=250, units="mmHG")  # Okay
 
 2. Adding a region:
@@ -308,7 +309,6 @@ Adding to a DatasetDefinition object
    .. code-block:: python
 
       dataset_definition.add_region(device_tag="tag_1", start=1693499415_000_000_000, end=1693583415_000_000_000)
-      dataset_definition.add_region(device_tag="tag_1", patient_id=12345, start=1693499415_000_000_000, end=1693583415_000_000_000)  # Error, only one of patient_id, mrn, device_id, device_tag should be specified.
       dataset_definition.add_region(patient_id=12345, start=1693364515_000_000_000, end=1693464515_000_000_000)
       dataset_definition.add_region(mrn=1234567, start=1659344515_000_000_000, end=1660344515_000_000_000)
       dataset_definition.add_region(mrn="7654321", time0=1659393745_000_000_000, pre=3600_000_000_000, post=3600_000_000_000)
