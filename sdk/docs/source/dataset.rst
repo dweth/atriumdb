@@ -91,13 +91,14 @@ possible section of no data to be emitted by the windows.
 
    num_windows_prefetch = 100_000  # preload 100,000 windows before emitting
    gap_tolerance = 3600_000_000_000  # No gaps between data less than an hour. (NaNs will fill the gaps)
+   time_units = "ns"
 
 5. Obtain the iterator:
 
 .. code-block:: python
 
    iterator = sdk.get_iterator(definition, window_size_nano, slide_size_nano,
-        num_windows_prefetch=num_windows_prefetch, gap_tolerance=gap_tolerance)
+        num_windows_prefetch=num_windows_prefetch, gap_tolerance=gap_tolerance, time_units=time_units)
 
 4. Iterate through the dataset:
 
