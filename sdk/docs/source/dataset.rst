@@ -19,7 +19,12 @@ your data for you, which makes tasks like training a model much simpler.
 What is the ``get_iterator`` method?
 ###################################################
 
-The `AtriumSDK.get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_ method allows users to define a set of measures and specific patients or devices over particular time intervals through the `DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ or a filename pointing to a valid :ref:`definition_file_format`. It ensures that the defined cohort exists within the available dataset. If portions of the cohort definition fall outside the dataset's boundaries, the method trims the cohort to fit within the available dataset and raises warnings about any data that has been omitted.
+The `AtriumSDK.get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_ method allows users to define a set of
+measures and specific patients or devices over particular time intervals through the
+`DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ or a filename pointing to a valid
+:ref:`definition_file_format`. It ensures that the defined cohort exists within the available dataset.
+If portions of the cohort definition fall outside the dataset's boundaries, the method trims the cohort to fit within
+the available dataset and raises warnings about any data that has been omitted.
 
 The method returns a ``DatasetIterator`` object. This object implements ``__len__``, ``__next__`` and ``__getitem__``
 methods, allowing it to be looped over or iterated upon using traditional python code conventions like
@@ -64,7 +69,8 @@ How to Use
 
    definition = DatasetDefinition(measures=measures, device_ids=device_ids)
 
-You can also use mrns or device tags to device your sources.
+You can also use mrns or device tags to device your sources. See the
+`DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ for more options.
 
 3. Set your desired parameters: window size and slide size (durations in nanoseconds), also num_windows_prefetch is the number of windows to preload for optimization:
 
