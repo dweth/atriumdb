@@ -79,12 +79,16 @@ changeable using ``time_units`` param, output times with conform to ``time_units
 
    slide_size_nano = window_size_nano = 60_000_000_000  # 1 minute nano
 
-4. Optional parameters: ``num_windows_prefetch`` is the number of windows to preload for optimization, a higher number
+4. Optional parameters:
+
+**num_windows_prefetch** is the number of windows to preload for optimization, a higher number
 increases efficiency at the cost of RAM usage (default will pick the number of windows such that the total number of
 cached values is closest to 10 million values.)
-``gap_tolerance`` informs the auto-generated definition intervals when using "all" mode, defining the desired largest
+
+**gap_tolerance** informs the auto-generated definition intervals when using "all" mode, defining the desired largest
 possible section of no data to be emitted by the windows.
-``time_units`` defines the time units of ``window_duration``, ``window_slide`` and ``gap_tolerance`` options are
+
+**time_units** defines the time units of ``window_duration``, ``window_slide`` and ``gap_tolerance`` options are
 ``["s", "ms", "us", "ns"]``, default ``"ns"``.
 
 .. code-block:: python
