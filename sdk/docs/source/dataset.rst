@@ -130,7 +130,9 @@ You can find explanations of the returned Window object in the :ref:`window_form
 Window Format
 #####################
 
-The ``Window`` class represents a structured format to handle chunks or windows of data, along with associated metadata, organized into signal dictionaries. It provides a more scalable and clear way to handle data of varying frequencies without filling lower frequency measures with NaN values due to alignment with higher frequency signals.
+The ``Window`` class represents a data structure for windowed data output by the
+`DatasetIterator Class <contents.html#atriumdb.DatasetIterator>`_, it includes the raw
+data organized into signal dictionaries, along with associated metadata.
 
 **Attributes**:
 
