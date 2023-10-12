@@ -21,7 +21,10 @@ What is the ``get_iterator`` method?
 
 The `AtriumSDK.get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_ method allows users to define a set of measures and specific patients or devices over particular time intervals through the `DatasetDefinition Class <contents.html#atriumdb.DatasetDefinition>`_ or a filename pointing to a valid :ref:`definition_file_format`. It ensures that the defined cohort exists within the available dataset. If portions of the cohort definition fall outside the dataset's boundaries, the method trims the cohort to fit within the available dataset and raises warnings about any data that has been omitted.
 
-The method returns a ``DatasetIterator`` object. This object provides both ``__len__`` and ``__getitem__`` methods, making iterating over the desired data straightforward and intuitive.
+The method returns a ``DatasetIterator`` object. This object implements ``__len__``, ``__next__`` and ``__getitem__``
+methods, allowing it to be looped over or iterated upon using traditional python code conventions like
+``for window in iterator`` or ``window = next(iterator)``. It also allows the class to directly facilitate a
+PyTorch Dataloader.
 
 How to Use
 #################
