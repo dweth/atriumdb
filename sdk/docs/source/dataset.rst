@@ -256,7 +256,7 @@ Definition YAML Examples
 Creating a DatasetDefinition object
 ###################################
 
-You can create a ``DatasetDefinition`` object in several ways:
+You can create a `DatasetDefinition <contents.html#atriumdb.DatasetDefinition>`_ object in several ways:
 
 1. Reading from an existing YAML file:
 
