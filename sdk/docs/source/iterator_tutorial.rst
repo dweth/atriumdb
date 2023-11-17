@@ -2,9 +2,9 @@ Reading Datasets with Iterators
 ===============================
 
 Working with large datasets often requires efficient access to smaller windows of data, particularly for tasks such
-as data visualization, pre-processing, or model training. The AtriumSDK provides a convenient method, `get_iterator`,
+as data visualization, pre-processing, or model training. The AtriumSDK provides a convenient method, `get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_,
 to handle these cases effectively. This tutorial will guide you through the end-to-end process of setting up the
-AtriumSDK instance, creating a `DatasetDefinition` object, and iterating over data windows.
+AtriumSDK instance, creating a `DatasetDefinition <contents.html#atriumdb.DatasetDefinition>`_ object, and iterating over data windows.
 
 
 Setting Up the SDK Instance
@@ -22,12 +22,12 @@ First things first, let's set up the SDK:
 Creating a Dataset Definition
 -----------------------------
 
-The `DatasetDefinition` object specifies the measures, patients, or devices and the time intervals we are interested in querying.
+The `DatasetDefinition <contents.html#atriumdb.DatasetDefinition>`_ object specifies the measures, patients, or devices and the time intervals we are interested in querying.
 This definition can be provided in two different ways: by reading from a YAML file or by creating the object in your Python script.
 
 **Option 1: Using a YAML file**
 
-Suppose you have the following in your `definition.yaml` file:
+Suppose you have the following in your `definition.yaml  <dataset.html#definition-file-format>`_ file:
 
 .. code-block:: yaml
 
@@ -43,7 +43,7 @@ Suppose you have the following in your `definition.yaml` file:
         freq_hz: 1.0
         units: 'MDC_DIM_DEGC'
 
-You can load this into a `DatasetDefinition` object as follows:
+You can load this into a `DatasetDefinition <contents.html#atriumdb.DatasetDefinition>`_ object as follows:
 
 .. code-block:: python
 
@@ -80,7 +80,7 @@ If you wanted to create a dataset of all patients born after a certain date, you
 Iterating Over Windows
 ----------------------
 
-Now that we've setup the `DatasetDefinition` object, we can use it to iterate over our dataset.
+Now that we've setup the `DatasetDefinition <contents.html#atriumdb.DatasetDefinition>`_ object, we can use it to iterate over our dataset.
 
 .. code-block:: python
 
