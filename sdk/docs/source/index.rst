@@ -14,6 +14,7 @@ To learn more about AtriumDB, visit the `about page <about.html>`_.
    quickstart
    tutorial
    dataset
+   iterator_tutorial
    cli
    contents
    about
