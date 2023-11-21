@@ -1,5 +1,5 @@
-Reading Datasets with Iterators
-===============================
+Reading Datasets with Iterators - Quickstart
+==============================================
 
 Working with large datasets often requires efficient access to smaller windows of data, particularly for tasks such
 as data visualization, pre-processing, or model training. The AtriumSDK provides a convenient method, `get_iterator  <contents.html#atriumdb.AtriumSDK.get_iterator>`_,
