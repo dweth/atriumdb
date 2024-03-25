@@ -334,6 +334,7 @@ class Block:
         # Calculate the start of the time bytes within the encoded bytes
         t_byte_start = np.cumsum([h.t_encoded_size if h.t_compression != 1 else 0 for h in headers], dtype=np.uint64)
         t_byte_start = np.concatenate([np.array([0], dtype=np.uint64), t_byte_start[:-1]], axis=None)
+        t_byte_start += encoded_bytes.size
         end_bench = time.perf_counter()
         logging.debug(f"arrange intra-block information {(end_bench - start_bench) * 1000} ms")
 
@@ -679,7 +680,7 @@ def create_gap_arr_fast(message_time_arr, samples_per_message, freq_nhz):
     # Find the indices of the non-zero time gaps
     non_zero_inds = np.nonzero(time_gaps)[0]
     # Initialize an array to store the results
-    result_arr = np.zeros((non_zero_inds.size, 2))
+    result_arr = np.zeros((non_zero_inds.size, 2), dtype=np.int64)
     # Fill the first column of the result array with the sample indices
     result_arr.T[0] = (non_zero_inds + 1) * samples_per_message
     # Fill the second column of the result array with the non-zero time gaps
