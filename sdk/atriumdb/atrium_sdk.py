@@ -817,6 +817,8 @@ class AtriumSDK:
                 else:
                     raise ValueError(f"Overwrite setting {overwrite_setting} not recognized.")
 
+        # TODO add code where if its going on the end and the end is a full block just insert dont merge
+
         # check if the write data will make at least one full block and if there will be a small block at the end
         num_full_blocks = value_data.size // self.block.block_size
         if (num_full_blocks > 0 and value_data.size % self.block.block_size != 0 and
@@ -827,6 +829,10 @@ class AtriumSDK:
                 scale_m, time_0, time_data, value_data)
         # if all blocks are perfectly sized or there is less than one optimal block worth of data
         else:
+            # if num_full_blocks == 0:
+            #     self.sql_handler.select_closest_block(measure_id, device_id, time_0, )
+
+
             # Encode the blocks
             encoded_bytes, encoded_headers, byte_start_array = self.block.encode_blocks(
                 time_data, value_data, freq_nhz, time_0,
