@@ -24,6 +24,7 @@ import numpy as np
 from tqdm import tqdm
 
 from atriumdb.transfer.adb.csv import _write_csv
+from atriumdb.transfer.adb.datestring_conversion import nanoseconds_to_date_string_with_tz
 from atriumdb.transfer.adb.definition import create_dataset_definition_from_verified_data
 from atriumdb.transfer.adb.labels import transfer_label_sets
 from atriumdb.transfer.adb.numpy import _write_numpy
@@ -252,14 +253,20 @@ def extract_src_device_and_patient_id_list(validated_sources):
 
 def ingest_data(to_sdk, measure_id, device_id, headers, times, values, export_format='tsc'):
     # Determine the file path based on the format
-    base_path = Path(to_sdk.dataset_location) / export_format / str(device_id) / str(measure_id)
-    base_path.mkdir(parents=True, exist_ok=True)
-    file_name = f"{int(times[0])}_{int(times[-1])}"
-    file_path = None
     measure_info = to_sdk.get_measure_info(measure_id)
     measure_tag = measure_info['tag']
     freq_hz = measure_info['freq_nhz'] / (10 ** 9)
     measure_units = measure_info['unit']
+    measure_folder_name = f"{measure_tag}^{freq_hz}Hz^{measure_units}"
+
+    device_info = to_sdk.get_device_info(device_id)
+    device_tag = device_info['tag']
+    device_folder_name = str(device_tag)
+
+    base_path = Path(to_sdk.dataset_location) / export_format / device_folder_name / measure_folder_name
+    base_path.mkdir(parents=True, exist_ok=True)
+    file_name = str(nanoseconds_to_date_string_with_tz(int(times[0])))
+    file_path = None
 
     if export_format == 'tsc':
         _ingest_data_tsc(to_sdk, measure_id, device_id, headers, times, values)
