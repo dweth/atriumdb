@@ -96,6 +96,8 @@ def transfer_data(src_sdk: AtriumSDK, dest_sdk: AtriumSDK, definition: DatasetDe
     """
 
     time_units = "ns" if time_units is None else time_units
+    analog_values = export_format != 'tsc'
+    allow_duplicates = export_format == 'tsc'
 
     if time_units not in time_unit_options.keys():
         raise ValueError("Invalid time units. Expected one of: %s" % time_unit_options)
@@ -150,7 +152,7 @@ def transfer_data(src_sdk: AtriumSDK, dest_sdk: AtriumSDK, definition: DatasetDe
                     # Insert Waveforms
                     headers, times, values = src_sdk.get_data(
                         src_measure_id, start_time_nano, end_time_nano, device_id=src_device_id, time_type=1,
-                        analog=False, sort=False, allow_duplicates=True)
+                        analog=analog_values, sort=True, allow_duplicates=allow_duplicates)
 
                     if values.size == 0:
                         continue
