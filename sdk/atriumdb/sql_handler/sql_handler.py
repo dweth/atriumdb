@@ -137,9 +137,15 @@ class SQLHandler(ABC):
             cursor.execute(end_check_query, (measure_id, device_id))
             result = cursor.fetchone()
 
-            # check if the start time is >= the max end time, or if it overlaps with the last block. If it does the block should be merged on the end
-            if result is not None and start_time >= result[7] or (start_time <= result[7] and end_time >= result[6]):
-                return result
+            # check if the start time is >= the max end time meaning the block goes on the end
+            if result is not None and start_time >= result[7]:
+                # return true meaning it goes on the end. We will check if the last block is full in write_data so we
+                # so we need to know if this is an end block
+                return result, True
+
+            # if it overlaps with the last block
+            if result is not None and start_time <= result[7] and end_time >= result[6]:
+                return result, False
 
             # check if there is a block that this data fits inside
             inside_query = base_query + "and start_time_n <= ? and end_time_n >= ? LIMIT 1"
@@ -149,7 +155,7 @@ class SQLHandler(ABC):
 
             # if there is a block this data belongs inside return it
             if result is not None:
-                return result
+                return result, False
 
             # get the closest block  whose start time is <= my start time
             inside_query = base_query + "and start_time_n <= ? and end_time_n <= ? ORDER BY start_time_n DESC, end_time_n DESC LIMIT 1"
@@ -172,21 +178,20 @@ class SQLHandler(ABC):
             if older_diff is None and newer_diff is not None:
                 return block_newer
             elif newer_diff is None and older_diff is not None:
-                return block_older
-            elif older_diff <= newer_diff:
-                return block_older
-            elif older_diff > newer_diff:
-                return block_newer
-            else:
+                return block_older, False
+            elif older_diff is None and newer_diff is None:
                 # need this since if it's the first block there will be nothing to merge with
-                return None
+                return None, False
+            elif older_diff <= newer_diff:
+                return block_older, False
+            elif older_diff > newer_diff:
+                return block_newer, False
 
-            # overlap_query = """SELECT id, measure_id, device_id, file_id, start_byte, num_bytes, start_time_n, end_time_n, num_values
-            # FROM block_index WHERE measure_id = ? and device_id = ? and end_time_n >= ? and start_time_n <= ? ORDER BY start_time_n DESC, end_time_n DESC LIMIT 1"""
-            # cursor.execute(inside_query, (measure_id, device_id, start_time, end_time))
-            # result = cursor.fetchone()
 
-
+    def delete_block(self, block_id: int):
+        with self.connection(begin=True) as (conn, cursor):
+            # delete old block data
+            cursor.execute("DELETE FROM block_index WHERE id = ?", (block_id,))
 
     @abstractmethod
     def select_interval(self, interval_id: int = None, measure_id: int = None, device_id: int = None,

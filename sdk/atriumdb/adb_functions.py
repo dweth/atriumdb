@@ -537,3 +537,15 @@ def create_timestamps_from_gap_data(values_size, gap_array, start_time, freq_nhz
         timestamps[gap_index:] += gap_duration
 
     return timestamps
+
+
+def merge_timestamp_data(values_1, times_1, values_2, times_2):
+    # concatenate the time and value arrays
+    concatenated_times = np.concatenate((times_1, times_2))
+    concatenated_values = np.concatenate((values_1, values_2))
+
+    # remove duplicate times and get indices to sort values in time order
+    time_data, index_unique = np.unique(concatenated_times, return_index=True)
+
+    # return the sorted arrays
+    return time_data, concatenated_values[index_unique]
