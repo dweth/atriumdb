@@ -23,8 +23,8 @@ from atriumdb.windowing.definition import DatasetDefinition
 from atriumdb.adb_functions import allowed_interval_index_modes, get_block_and_interval_data, condense_byte_read_list, \
     find_intervals, sort_data, yield_data, convert_to_nanoseconds, convert_to_nanohz, convert_from_nanohz, \
     ALLOWED_TIME_TYPES, collect_all_descendant_ids, get_best_measure_id, _calc_end_time_from_gap_data, \
-    merge_timestamp_data, merge_gap_data, create_timestamps_from_gap_data
-from atriumdb.block import Block, create_gap_arr_fast
+    merge_timestamp_data, merge_gap_data, create_timestamps_from_gap_data, freq_nhz_to_period_ns
+from atriumdb.block import Block, create_gap_arr
 from atriumdb.block_wrapper import T_TYPE_GAP_ARRAY_INT64_INDEX_DURATION_NANO, V_TYPE_INT64, V_TYPE_DELTA_INT64, \
     V_TYPE_DOUBLE, T_TYPE_TIMESTAMP_ARRAY_INT64_NANO, BlockMetadataWrapper
 from atriumdb.file_api import AtriumFileHandler
@@ -829,8 +829,9 @@ class AtriumSDK:
         if num_full_blocks == 0 and merge_blocks:
             # if the times are a gap array find the end time of the array so we can find the closest block
             if raw_time_type == T_TYPE_GAP_ARRAY_INT64_INDEX_DURATION_NANO:
+                # need to subtract one period since the function gives end_time+1 period
                 end_time = _calc_end_time_from_gap_data(values_size=value_data.size, gap_array=time_data,
-                                                        start_time=time_0, freq_nhz=freq_nhz)
+                                                        start_time=time_0, freq_nhz=freq_nhz) - freq_nhz_to_period_ns(freq_nhz)
             elif raw_time_type == T_TYPE_TIMESTAMP_ARRAY_INT64_NANO:
                 end_time = time_data[-1]
             else:
@@ -884,7 +885,7 @@ class AtriumSDK:
                                                  f"merge_blocks to false or pass in the times as a timestamp array.")
                         # if the new time data is a gap array convert it to a time array to match the old times
                         elif raw_time_type == T_TYPE_TIMESTAMP_ARRAY_INT64_NANO:
-                            time_data = create_gap_arr_fast(time_data, 1, freq_nhz)
+                            time_data = create_gap_arr(time_data, 1, freq_nhz)
                             raw_time_type = T_TYPE_GAP_ARRAY_INT64_INDEX_DURATION_NANO
 
                     # Decode the data and get the values and the times we are going to merge this data with
@@ -895,7 +896,7 @@ class AtriumSDK:
                         time_data, value_data = merge_timestamp_data(r_value, r_time, value_data, time_data)
                         time_0 = time_data[0]
                     else:
-                        time_data, value_data, time_0 = merge_gap_data(r_value, r_time, header[0].start_n, value_data,
+                        value_data, time_data, time_0 = merge_gap_data(r_value, r_time, header[0].start_n, value_data,
                                                                        time_data, time_0, freq_nhz)
                 else:
                     # if the scale factors are not the same don't merge and set old block to none, so we don't delete it

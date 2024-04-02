@@ -187,7 +187,6 @@ class SQLHandler(ABC):
             elif older_diff > newer_diff:
                 return block_newer, False
 
-
     def delete_block(self, block_id: int):
         with self.connection(begin=True) as (conn, cursor):
             # delete old block data
