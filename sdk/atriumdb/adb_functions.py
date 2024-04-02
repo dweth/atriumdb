@@ -480,7 +480,7 @@ def merge_gap_data(values_1, gap_array_1, start_time_1, values_2, gap_array_2, s
     overlap = (start_time_1 < end_time_2) and (end_time_1 > start_time_2)
 
     # If there's no overlap, you can simply concatenate the data.
-    if not overlap:
+    if is_gap_data_sorted(gap_array_1, freq_nhz) and is_gap_data_sorted(gap_array_2, freq_nhz) and not overlap:
         return _concatenate_gap_data(
             values_1, gap_array_1, start_time_1, values_2, gap_array_2, start_time_2, freq_nhz)
 
@@ -497,13 +497,15 @@ def merge_gap_data(values_1, gap_array_1, start_time_1, values_2, gap_array_2, s
     message_starts_2, message_sizes_2 = reconstruct_messages(
         start_time_2, gap_array_2, freq_nhz, int(values_2.size))
 
-    # Sort both message lists + values
+    # Sort both message lists + values, and copy values to not mess with the originals
+    values_1, values_2 = values_1.copy(), values_2.copy()
     sort_message_time_values(message_starts_1, message_sizes_1, values_1)
     sort_message_time_values(message_starts_2, message_sizes_2, values_2)
 
     # Merge lists and Overwrite 2 over 1 if overlapping
     merged_starts, merged_sizes, merged_values = merge_sorted_messages(
-        message_starts_1, message_sizes_1, values_1, message_starts_2, message_sizes_2, values_2, freq_nhz)
+        message_starts_1, message_sizes_1, values_1,
+        message_starts_2, message_sizes_2, values_2, freq_nhz)
 
     # Convert back into gap data
     merged_gap_data = create_gap_arr_from_variable_messages(merged_starts, merged_sizes, freq_nhz)
@@ -721,6 +723,18 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 j += 1
                 continue
 
+            if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
+                # If the new message is completely within the most recent merged message
+                # Then we simply overwrite the needed values
+                left_index_duration = message_starts_2[j] - merged_starts[-1]
+                left_index = math.ceil((left_index_duration * int(freq_nhz)) / (10 ** 18))
+
+                right_index_duration = merged_ends[-1] - message_ends_2[j]
+                right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
+                merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
+                j += 1
+                continue
+
             while merged_ends and message_starts_2[j] < merged_ends[-1]:
                 # If there is overlap
                 duration_ns_overlap = int(merged_ends[-1] - message_starts_2[j])
@@ -795,6 +809,18 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 values_2[message_start_indices_2[j]:message_end_indices_2[j]]
 
             merged_values[-1] = new_merged_values
+            j += 1
+            continue
+
+        if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
+            # If the new message is completely within the most recent merged message
+            # Then we simply overwrite the needed values
+            left_index_duration = message_starts_2[j] - merged_starts[-1]
+            left_index = math.ceil((left_index_duration * int(freq_nhz)) / (10 ** 18))
+
+            right_index_duration = merged_ends[-1] - message_ends_2[j]
+            right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
+            merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
             j += 1
             continue
 
