@@ -131,7 +131,7 @@ class AtriumSDK:
     """
 
     def __init__(self, dataset_location: Union[str, PurePath] = None, metadata_connection_type: str = None,
-                 connection_params: dict = None, num_threads: int = None, api_url: str = None, token: str = None,
+                 connection_params: dict = None, num_threads: int = 1, api_url: str = None, token: str = None,
                  refresh_token=None, validate_token=True, tsc_file_location: str = None, atriumdb_lib_path: str = None,
                  no_pool=False):
 
@@ -142,10 +142,6 @@ class AtriumSDK:
             metadata_connection_type is None else metadata_connection_type
 
         self.metadata_connection_type = metadata_connection_type
-
-        # Set number of threads to max available minus 2 or 1, whichever is greater, if not provided
-        if num_threads is None:
-            num_threads = max(cpu_count() - 2, 1)
 
         # Set the C DLL path based on the platform if not provided
         if atriumdb_lib_path is None:
@@ -891,6 +887,11 @@ class AtriumSDK:
                     # Decode the data and get the values and the times we are going to merge this data with
                     r_time, r_value, _ = self.block.decode_blocks(encoded_bytes_old, num_bytes_list=[old_block[5]],
                                                                   analog=False, time_type=header[0].t_raw_type)
+
+                    # if raw value type is int and it's not int64 then cast it to int64 so it doesn't fail during merge
+                    if raw_value_type == 1 and value_data.dtype != np.int64:
+                        value_data = value_data.astype(np.int64)
+
                     # merge the blocks
                     if raw_time_type == T_TYPE_TIMESTAMP_ARRAY_INT64_NANO:
                         time_data, value_data = merge_timestamp_data(r_value, r_time, value_data, time_data)
