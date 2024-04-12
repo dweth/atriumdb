@@ -169,14 +169,14 @@ class SQLHandler(ABC):
 
             # subtract the end time of the old block from the start time of the new block to see how far apart they are
             # if they overlap the number will become negative and therefore they are closer
-            older_diff = start_time - block_older[7] if block_newer is not None else None
+            older_diff = start_time - block_older[7] if block_older is not None else None
 
             # subtract the start time of the old block from the end time of the new block to see how far apart they are
             # if they overlap the number will become negative and therefore they are closer
-            newer_diff = block_older[6] - end_time if block_newer is not None else None
+            newer_diff = block_newer[6] - end_time if block_newer is not None else None
 
             if older_diff is None and newer_diff is not None:
-                return block_newer
+                return block_newer, False
             elif newer_diff is None and older_diff is not None:
                 return block_older, False
             elif older_diff is None and newer_diff is None:
