@@ -614,9 +614,9 @@ def reconstruct_messages(start_time_nano_epoch, gap_data_array, sample_freq, num
 
     message_starts[0] = start_time_nano_epoch
 
-    if any(((10 ** 18) * m_size) % sample_freq != 0 for m_size in message_sizes[:-1]):
+    if any(((10 ** 18) * int(m_size)) % sample_freq != 0 for m_size in message_sizes[:-1]):
         warnings.warn("Not all messages durations can be expressed as a perfect nanosecond integer, some rounding has occured")
-    message_starts[1:] = [_message_size_to_duration_ns(m_size, sample_freq) for m_size in message_sizes[:-1]]
+    message_starts[1:] = [_message_size_to_duration_ns(int(m_size), sample_freq) for m_size in message_sizes[:-1]]
     message_starts[1:] += gap_data_array[1::2]
     message_starts = np.cumsum(message_starts)
 
@@ -656,10 +656,10 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                           message_starts_2, message_sizes_2, values_2, freq_nhz):
 
     message_ends_1 = message_starts_1 + np.array(
-        [_message_size_to_duration_ns(m_size, freq_nhz) for m_size in message_sizes_1], dtype=np.int64)
+        [_message_size_to_duration_ns(int(m_size), freq_nhz) for m_size in message_sizes_1], dtype=np.int64)
 
     message_ends_2 = message_starts_2 + np.array(
-        [_message_size_to_duration_ns(m_size, freq_nhz) for m_size in message_sizes_2], dtype=np.int64)
+        [_message_size_to_duration_ns(int(m_size), freq_nhz) for m_size in message_sizes_2], dtype=np.int64)
 
     message_end_indices_1, message_start_indices_1 = _get_message_indices(message_sizes_1)
     message_end_indices_2, message_start_indices_2 = _get_message_indices(message_sizes_2)
@@ -724,14 +724,20 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 continue
 
             if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
-                # If the new message is completely within the most recent merged message
-                # Then we simply overwrite the needed values
-                left_index_duration = message_starts_2[j] - merged_starts[-1]
-                left_index = math.ceil((left_index_duration * int(freq_nhz)) / (10 ** 18))
+                try:
+                    # If the new message is completely within the most recent merged message
+                    # Then we simply overwrite the needed values
+                    left_index_duration = int(message_starts_2[j] - merged_starts[-1])
+                    left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
+                    num_values = message_end_indices_2[j] - message_start_indices_2[j]
+                    # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
+                    # right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
+                    right_index = left_index + num_values
+                    merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
+                except Exception as e:
+                    print()
+                    raise e
 
-                right_index_duration = merged_ends[-1] - message_ends_2[j]
-                right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
-                merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
                 j += 1
                 continue
 
@@ -813,14 +819,19 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             continue
 
         if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
-            # If the new message is completely within the most recent merged message
-            # Then we simply overwrite the needed values
-            left_index_duration = message_starts_2[j] - merged_starts[-1]
-            left_index = math.ceil((left_index_duration * int(freq_nhz)) / (10 ** 18))
-
-            right_index_duration = merged_ends[-1] - message_ends_2[j]
-            right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
-            merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
+            try:
+                # If the new message is completely within the most recent merged message
+                # Then we simply overwrite the needed values
+                left_index_duration = int(message_starts_2[j] - merged_starts[-1])
+                left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
+                num_values = message_end_indices_2[j] - message_start_indices_2[j]
+                # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
+                # right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
+                right_index = left_index + num_values
+                merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
+            except Exception as e:
+                print()
+                raise e
             j += 1
             continue
 
