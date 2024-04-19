@@ -690,6 +690,9 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             elif merged_ends and message_starts_1[i] < merged_ends[-1]:
                 # If there is overlap
                 duration_ns_overlap = int(merged_ends[-1] - message_starts_1[i])
+
+                if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
+                    warnings.warn("Old data overlaps with new data out of phase, out of phase data is being deleted.")
                 num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
                 # Reduce input values
@@ -724,19 +727,16 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 continue
 
             if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
-                try:
-                    # If the new message is completely within the most recent merged message
-                    # Then we simply overwrite the needed values
-                    left_index_duration = int(message_starts_2[j] - merged_starts[-1])
-                    left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
-                    num_values = message_end_indices_2[j] - message_start_indices_2[j]
-                    # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
-                    # right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
-                    right_index = left_index + num_values
-                    merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
-                except Exception as e:
-                    print()
-                    raise e
+                # If the new message is completely within the most recent merged message
+                # Then we simply overwrite the needed values
+                left_index_duration = int(message_starts_2[j] - merged_starts[-1])
+                if (left_index_duration * int(freq_nhz)) % (10 ** 18) != 0:
+                    warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+                left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
+                num_values = message_end_indices_2[j] - message_start_indices_2[j]
+
+                right_index = left_index + num_values
+                merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
 
                 j += 1
                 continue
@@ -744,6 +744,8 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             while merged_ends and message_starts_2[j] < merged_ends[-1]:
                 # If there is overlap
                 duration_ns_overlap = int(merged_ends[-1] - message_starts_2[j])
+                if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
+                    warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
                 num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
                 remaining_values = merged_values[-1].size - num_values_overlap
@@ -785,6 +787,8 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
         elif merged_ends and message_starts_1[i] < merged_ends[-1]:
             # If there is overlap
             duration_ns_overlap = int(merged_ends[-1] - message_starts_1[i])
+            if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
+                warnings.warn("Old data overlaps with new data out of phase, out of phase data is being deleted.")
             num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
             # Reduce input values
@@ -819,25 +823,25 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             continue
 
         if merged_ends and message_starts_2[j] < merged_ends[-1] and message_ends_2[j] < merged_ends[-1]:
-            try:
-                # If the new message is completely within the most recent merged message
-                # Then we simply overwrite the needed values
-                left_index_duration = int(message_starts_2[j] - merged_starts[-1])
-                left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
-                num_values = message_end_indices_2[j] - message_start_indices_2[j]
-                # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
-                # right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
-                right_index = left_index + num_values
-                merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
-            except Exception as e:
-                print()
-                raise e
+            # If the new message is completely within the most recent merged message
+            # Then we simply overwrite the needed values
+            left_index_duration = int(message_starts_2[j] - merged_starts[-1])
+            if (left_index_duration * int(freq_nhz)) % (10 ** 18) != 0:
+                warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+            left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
+            num_values = message_end_indices_2[j] - message_start_indices_2[j]
+            # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
+            # right_index = merged_values[-1].size - math.ceil((right_index_duration * int(freq_nhz)) / (10 ** 18))
+            right_index = left_index + num_values
+            merged_values[-1][left_index:right_index] = values_2[message_start_indices_2[j]:message_end_indices_2[j]]
             j += 1
             continue
 
         while merged_ends and message_starts_2[j] < merged_ends[-1]:
             # If there is overlap
             duration_ns_overlap = int(merged_ends[-1] - message_starts_2[j])
+            if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
+                warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
             num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
             remaining_values = merged_values[-1].size - num_values_overlap
