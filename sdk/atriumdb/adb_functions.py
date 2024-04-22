@@ -692,7 +692,26 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 duration_ns_overlap = int(merged_ends[-1] - message_starts_1[i])
 
                 if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
-                    warnings.warn("Old data overlaps with new data out of phase, out of phase data is being deleted.")
+                    warnings.warn("Old data overlaps with new data out of phase.")
+                    new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                        message_starts_1[i], message_ends_1[i],
+                        message_start_indices_1[i], message_end_indices_1[i], values_1,
+                        merged_starts[-1], merged_ends[-1],
+                        0, merged_values[-1].size, merged_values[-1],
+                        freq_nhz)
+
+                    # delete last entry
+                    merged_starts.pop()
+                    merged_ends.pop()
+                    merged_values.pop()
+
+                    # Add new one
+                    merged_starts.extend(new_starts)
+                    merged_ends.extend(new_ends)
+                    merged_values.extend(new_values)
+                    i += 1
+                    continue
+
                 num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
                 # Reduce input values
@@ -731,7 +750,26 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 # Then we simply overwrite the needed values
                 left_index_duration = int(message_starts_2[j] - merged_starts[-1])
                 if (left_index_duration * int(freq_nhz)) % (10 ** 18) != 0:
-                    warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+                    warnings.warn("New data overlaps with old data out of phase.")
+                    new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                        message_starts_2[j], message_ends_2[j],
+                        message_start_indices_2[j], message_end_indices_2[j], values_2,
+                        merged_starts[-1], merged_ends[-1],
+                        0, merged_values[-1].size, merged_values[-1],
+                        freq_nhz)
+
+                    # delete last entry
+                    merged_starts.pop()
+                    merged_ends.pop()
+                    merged_values.pop()
+
+                    # Add new one
+                    merged_starts.extend(new_starts)
+                    merged_ends.extend(new_ends)
+                    merged_values.extend(new_values)
+                    j += 1
+                    continue
+
                 left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
                 num_values = message_end_indices_2[j] - message_start_indices_2[j]
 
@@ -741,11 +779,31 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 j += 1
                 continue
 
+            out_of_phase = False
             while merged_ends and message_starts_2[j] < merged_ends[-1]:
                 # If there is overlap
                 duration_ns_overlap = int(merged_ends[-1] - message_starts_2[j])
                 if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
-                    warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+                    warnings.warn("New data overlaps with old data out of phase.")
+                    new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                        message_starts_2[j], message_ends_2[j],
+                        message_start_indices_2[j], message_end_indices_2[j], values_2,
+                        merged_starts[-1], merged_ends[-1],
+                        0, merged_values[-1].size, merged_values[-1],
+                        freq_nhz)
+
+                    # delete last entry
+                    merged_starts.pop()
+                    merged_ends.pop()
+                    merged_values.pop()
+
+                    # Add new one
+                    merged_starts.extend(new_starts)
+                    merged_ends.extend(new_ends)
+                    merged_values.extend(new_values)
+                    out_of_phase = True
+                    break
+
                 num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
                 remaining_values = merged_values[-1].size - num_values_overlap
@@ -761,10 +819,11 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                     # Reduce old end_time
                     merged_ends[-1] -= _message_size_to_duration_ns(num_values_overlap, freq_nhz)
 
-            # Once we know there is no overlap, we can safely append.
-            merged_starts.append(message_starts_2[j])
-            merged_ends.append(message_ends_2[j])
-            merged_values.append(values_2[message_start_indices_2[j]:message_end_indices_2[j]])
+            if not out_of_phase:
+                # Once we know there is no overlap, we can safely append.
+                merged_starts.append(message_starts_2[j])
+                merged_ends.append(message_ends_2[j])
+                merged_values.append(values_2[message_start_indices_2[j]:message_end_indices_2[j]])
             j += 1
 
     # Add any remaining messages from 1
@@ -788,7 +847,26 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             # If there is overlap
             duration_ns_overlap = int(merged_ends[-1] - message_starts_1[i])
             if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
-                warnings.warn("Old data overlaps with new data out of phase, out of phase data is being deleted.")
+                warnings.warn("Old data overlaps with new data out of phase.")
+                new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                    message_starts_1[i], message_ends_1[i],
+                    message_start_indices_1[i], message_end_indices_1[i], values_1,
+                    merged_starts[-1], merged_ends[-1],
+                    0, merged_values[-1].size, merged_values[-1],
+                    freq_nhz)
+
+                # delete last entry
+                merged_starts.pop()
+                merged_ends.pop()
+                merged_values.pop()
+
+                # Add new one
+                merged_starts.extend(new_starts)
+                merged_ends.extend(new_ends)
+                merged_values.extend(new_values)
+                i += 1
+                continue
+
             num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
             # Reduce input values
@@ -827,7 +905,26 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             # Then we simply overwrite the needed values
             left_index_duration = int(message_starts_2[j] - merged_starts[-1])
             if (left_index_duration * int(freq_nhz)) % (10 ** 18) != 0:
-                warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+                warnings.warn("New data overlaps with old data out of phase.")
+                new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                    message_starts_2[j], message_ends_2[j],
+                    message_start_indices_2[j], message_end_indices_2[j], values_2,
+                    merged_starts[-1], merged_ends[-1],
+                    0, merged_values[-1].size, merged_values[-1],
+                    freq_nhz)
+
+                # delete last entry
+                merged_starts.pop()
+                merged_ends.pop()
+                merged_values.pop()
+
+                # Add new one
+                merged_starts.extend(new_starts)
+                merged_ends.extend(new_ends)
+                merged_values.extend(new_values)
+                j += 1
+                continue
+
             left_index = round((left_index_duration * int(freq_nhz)) / (10 ** 18))
             num_values = message_end_indices_2[j] - message_start_indices_2[j]
             # right_index_duration = int(merged_ends[-1] - message_ends_2[j])
@@ -837,11 +934,30 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
             j += 1
             continue
 
+        out_of_phase = False
         while merged_ends and message_starts_2[j] < merged_ends[-1]:
             # If there is overlap
             duration_ns_overlap = int(merged_ends[-1] - message_starts_2[j])
             if (duration_ns_overlap * int(freq_nhz)) % (10 ** 18) != 0:
-                warnings.warn("New data overlaps with old data out of phase, out of phase data is being deleted.")
+                warnings.warn("New data overlaps with old data out of phase.")
+                new_starts, new_ends, new_values = generate_single_messages_from_big_message(
+                    message_starts_2[j], message_ends_2[j],
+                    message_start_indices_2[j], message_end_indices_2[j], values_2,
+                    merged_starts[-1], merged_ends[-1],
+                    0, merged_values[-1].size, merged_values[-1],
+                    freq_nhz)
+
+                # delete last entry
+                merged_starts.pop()
+                merged_ends.pop()
+                merged_values.pop()
+
+                # Add new one
+                merged_starts.extend(new_starts)
+                merged_ends.extend(new_ends)
+                merged_values.extend(new_values)
+                out_of_phase = True
+                break
             num_values_overlap = math.ceil((duration_ns_overlap * int(freq_nhz)) / (10 ** 18))
 
             remaining_values = merged_values[-1].size - num_values_overlap
@@ -857,10 +973,11 @@ def merge_sorted_messages(message_starts_1, message_sizes_1, values_1,
                 # Reduce old end_time
                 merged_ends[-1] -= _message_size_to_duration_ns(num_values_overlap, freq_nhz)
 
-        # Once we know there is no overlap, we can safely append.
-        merged_starts.append(message_starts_2[j])
-        merged_ends.append(message_ends_2[j])
-        merged_values.append(values_2[message_start_indices_2[j]:message_end_indices_2[j]])
+        if not out_of_phase:
+            # Once we know there is no overlap, we can safely append.
+            merged_starts.append(message_starts_2[j])
+            merged_ends.append(message_ends_2[j])
+            merged_values.append(values_2[message_start_indices_2[j]:message_end_indices_2[j]])
         j += 1
 
     merged_starts = np.array(merged_starts, dtype=np.int64)
@@ -885,3 +1002,66 @@ def merge_timestamp_data(values_1, times_1, values_2, times_2):
 
     # return the sorted arrays
     return time_data, concatenated_values[index_unique]
+
+
+def generate_single_messages_from_big_message(message_start_1, message_end_1, start_index_1, end_index_1, message_values_1,
+                                              message_start_2, message_end_2, start_index_2, end_index_2, message_values_2,
+                                              freq_nhz):
+    if (10 ** 18) % freq_nhz != 0:
+        warnings.warn("Out of phase data is being merged with a freq that doesn't create perfect nanosecond integer "
+                      "timestamps, some rounding will occur in the stored data.")
+
+    # Calculate the period based on frequency
+    period_ns = (10 ** 18) // freq_nhz
+
+    # Initialize lists for both data sets
+    starts_1, ends_1, values_list_1 = [], [], []
+    starts_2, ends_2, values_list_2 = [], [], []
+
+    # Process the first set of parameters
+    cur_time = message_start_1
+    for index in range(start_index_1, end_index_1):
+        starts_1.append(cur_time)
+        values_list_1.append(message_values_1[index:index+1])
+        cur_time += period_ns
+        ends_1.append(cur_time)
+
+    # Process the second set of parameters
+    cur_time = message_start_2
+    for index in range(start_index_2, end_index_2):
+        starts_2.append(cur_time)
+        values_list_2.append(message_values_2[index:index+1])
+        cur_time += period_ns
+        ends_2.append(cur_time)
+
+    # Now merge the two sets in order of ascending starts
+    starts, ends, values_list = [], [], []
+    index_1, index_2 = 0, 0
+
+    while index_1 < len(starts_1) and index_2 < len(starts_2):
+        if starts_1[index_1] <= starts_2[index_2]:
+            starts.append(starts_1[index_1])
+            ends.append(ends_1[index_1])
+            values_list.append(values_list_1[index_1])
+            index_1 += 1
+        else:
+            starts.append(starts_2[index_2])
+            ends.append(ends_2[index_2])
+            values_list.append(values_list_2[index_2])
+            index_2 += 1
+
+    # Append remaining elements from the first list
+    while index_1 < len(starts_1):
+        starts.append(starts_1[index_1])
+        ends.append(ends_1[index_1])
+        values_list.append(values_list_1[index_1])
+        index_1 += 1
+
+    # Append remaining elements from the second list
+    while index_2 < len(starts_2):
+        starts.append(starts_2[index_2])
+        ends.append(ends_2[index_2])
+        values_list.append(values_list_2[index_2])
+        index_2 += 1
+
+    return starts, ends, values_list

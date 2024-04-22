@@ -63,21 +63,24 @@ import numpy as np
 
         # Case with multiple identical times, ensuring overwriting is consistent
         ([90, 91, 91, 92], [31, 32, 33, 34], [91, 92, 93], [21000, 22000, 23000], [31, 21000, 22000, 23000]),
+
+        # Out of Phase overlap
+        ([1, 2, 3, 4], [1, 2, 3, 4], [1.5, 2.5, 3.5, 4.5], [1.5, 2.5, 3.5, 4.5], [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5]),
     ]
 )
 def test_end_to_end_merging(times_1, values_1, times_2, values_2, expected_merged_values):
     freq_nhz = 1_000_000_000
     nanoseconds_in_a_second = 1_000_000_000
-    times_1, values_1 = np.array(times_1, dtype=np.int64) * nanoseconds_in_a_second, np.array(values_1, dtype=np.int64)
+    times_1, values_1 = (np.array(times_1, dtype=np.float64) * nanoseconds_in_a_second).astype(np.int64), np.array(values_1, dtype=np.float64)
     gap_array_1 = create_gap_arr(times_1, 1, freq_nhz)
 
-    times_2, values_2 = np.array(times_2, dtype=np.int64) * nanoseconds_in_a_second, np.array(values_2, dtype=np.int64)
+    times_2, values_2 = (np.array(times_2, dtype=np.float64) * nanoseconds_in_a_second).astype(np.int64), np.array(values_2, dtype=np.float64)
     gap_array_2 = create_gap_arr(times_2, 1, freq_nhz)
 
     merged_values, merged_gap_array, merged_start_time = merge_gap_data(
         values_1, gap_array_1, int(times_1[0]), values_2, gap_array_2, int(times_2[0]), freq_nhz)
 
-    assert np.array_equal(merged_values, np.array(expected_merged_values, dtype=np.int64))
+    assert np.allclose(merged_values, np.array(expected_merged_values, dtype=np.float64))
 
 
 def test_gap_data_to_message_time_conversion():
