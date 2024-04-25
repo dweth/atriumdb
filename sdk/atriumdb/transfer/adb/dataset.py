@@ -54,7 +54,6 @@ def transfer_data(src_sdk: AtriumSDK, dest_sdk: AtriumSDK, definition: DatasetDe
     This includes transferring measures, devices, patient information, and labels with options for data de-identification,
     time shifting, and custom gap tolerance.
 
-    :param parquet_engine:
     :param AtriumSDK src_sdk: The source SDK instance from which data will be transferred.
     :param AtriumSDK dest_sdk: The destination SDK instance to which data will be transferred.
     :param DatasetDefinition definition: Specifies the structure and contents of the dataset to be transferred.
