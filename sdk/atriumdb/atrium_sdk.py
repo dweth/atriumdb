@@ -2128,8 +2128,17 @@ class AtriumSDK:
             mrn_to_patient_id_map = self.get_mrn_to_patient_id_map(mrn_list)
             patient_id_list.extend([mrn_to_patient_id_map[mrn] for mrn in mrn_list if mrn in mrn_to_patient_id_map])
 
-        return self.sql_handler.select_device_patients(
+        device_patient_list = self.sql_handler.select_device_patients(
             device_id_list=device_id_list, patient_id_list=patient_id_list, start_time=start_time, end_time=end_time)
+
+        # Replace Null End Times with the current time.
+        result = []
+        for row in device_patient_list:
+            if row[3] is None:
+                result.append([row[0], row[1], row[2], time.time_ns()])
+            else:
+                result.append(row)
+        return result
 
     def _api_get_device_patient_data(self, device_id_list: List[int] = None, patient_id_list: List[int] = None,
                                      mrn_list: List[int] = None, start_time: int = None, end_time: int = None):
