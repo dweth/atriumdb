@@ -53,13 +53,14 @@ DEFAULT_PORT = 3306
 
 
 class MariaDBHandler(SQLHandler):
-    def __init__(self, host: str, user: str, password: str, database: str, port: int = None, pool_size: int = 1,
-                 no_pool=False):
+    def __init__(self, host: str, user: str, password: str, database: str, port: int = None, collation: str = 'utf8mb4_general_ci',
+                 pool_size: int = 1, no_pool=False):
         self.host = host
         self.user = user
         self.password = password
         self.port = DEFAULT_PORT if port is None else port
         self.database = database
+        self.collation = collation
 
         self.connection_params = {
             'host': self.host,
@@ -67,6 +68,7 @@ class MariaDBHandler(SQLHandler):
             'user': self.user,
             'password': self.password,
             'database': self.database,
+            'collation': self.collation,
         }
         self.pool_size = pool_size
         self.no_pool = no_pool
@@ -80,7 +82,7 @@ class MariaDBHandler(SQLHandler):
         self.pool = mariadb.ConnectionPool(pool_name=f"atriumdb_pool_{pool_guid}", pool_size=self.pool_size,
                                            **self.connection_params)
 
-    def get_connection_from_pool(self):
+    def get_connection_from_pool():
         if self.pool is None:
             self.create_pool()
         return self.pool.get_connection()
